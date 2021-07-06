@@ -1,0 +1,466 @@
+Deploy Flyte Sandbox k3s environment locally
+--------------------------------------------
+
+On my personal OSX
+
+following https://docs.flyte.org/en/latest/getting_started.html
+
+
+Rowans-MacBook-Pro:flyte rowan$ python3 -m venv flyte-dev
+Rowans-MacBook-Pro:flyte rowan$ source flyte-dev/bin/activate
+(flyte-dev) Rowans-MacBook-Pro:flyte rowan$ python
+Python 3.7.1 (default, Dec 14 2018, 13:28:58) 
+[Clang 4.0.1 (tags/RELEASE_401/final)] :: Anaconda, Inc. on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+[4]+  Stopped                 python
+(flyte-dev) Rowans-MacBook-Pro:flyte rowan$ pip install --pre flytekit
+Collecting flytekit
+...
+Successfully installed attrs-21.2.0 certifi-2021.5.30 chardet-4.0.0 click-7.1.2 croniter-1.0.15 dataclasses-json-0.5.4 decorator-5.0.9 deprecated-1.2.12 dirhash-0.2.1 docker-image-py-0.1.10 flyteidl-0.19.7 flytekit-0.20.0b2 grpcio-1.38.1 idna-2.10 importlib-metadata-4.6.0 keyring-23.0.1 marshmallow-3.12.1 marshmallow-enum-1.5.1 marshmallow-jsonschema-0.12.0 mypy-extensions-0.4.3 natsort-7.1.1 numpy-1.21.0 pandas-1.3.0rc1 pathspec-0.8.1 protobuf-3.17.3 py-1.10.0 pyarrow-3.0.0 python-dateutil-2.8.1 python-json-logger-2.0.1 pytimeparse-1.1.8 pytz-2018.4 regex-2021.4.4 requests-2.25.1 responses-0.13.3 retry-0.9.2 scantree-0.0.1 six-1.16.0 sortedcontainers-2.4.0 statsd-3.3.0 stringcase-1.2.0 typing-extensions-3.10.0.0 typing-inspect-0.7.1 urllib3-1.25.11 wheel-0.36.2 wrapt-1.12.1 zipp-3.4.1
+
+
+(flyte-dev) Rowans-MacBook-Pro:flyte rowan$ git clone git@github.com:flyteorg/flytesnacks.git flytesnacks
+Cloning into 'flytesnacks'...
+
+
+
+flyte-dev) Rowans-MacBook-Pro:flyte rowan$ cd flytesnacks/
+(flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ make start
+Starting Flyte sandbox
+make: flytectl: No such file or directory
+make: *** [setup] Error 1
+
+Note: You also need to install flytectl with brew
+
+(flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ pip list
+Package                Version  
+---------------------- ---------
+attrs                  21.2.0   
+certifi                2021.5.30
+chardet                4.0.0    
+click                  7.1.2    
+croniter               1.0.15   
+dataclasses-json       0.5.4    
+decorator              5.0.9    
+Deprecated             1.2.12   
+dirhash                0.2.1    
+docker-image-py        0.1.10   
+flyteidl               0.19.7   
+flytekit               0.20.0b2 
+grpcio                 1.38.1   
+idna                   2.10     
+importlib-metadata     4.6.0    
+keyring                23.0.1   
+marshmallow            3.12.1   
+marshmallow-enum       1.5.1    
+marshmallow-jsonschema 0.12.0   
+mypy-extensions        0.4.3    
+natsort                7.1.1    
+numpy                  1.21.0   
+pandas                 1.3.0rc1 
+pathspec               0.8.1    
+pip                    10.0.1   
+protobuf               3.17.3   
+py                     1.10.0   
+pyarrow                3.0.0    
+python-dateutil        2.8.1    
+python-json-logger     2.0.1    
+pytimeparse            1.1.8    
+pytz                   2018.4   
+regex                  2021.4.4 
+requests               2.25.1   
+responses              0.13.3   
+retry                  0.9.2    
+scantree               0.0.1    
+setuptools             39.0.1   
+six                    1.16.0   
+sortedcontainers       2.4.0    
+statsd                 3.3.0    
+stringcase             1.2.0    
+typing-extensions      3.10.0.0 
+typing-inspect         0.7.1    
+urllib3                1.25.11  
+wheel                  0.36.2   
+wrapt                  1.12.1   
+zipp                   3.4.1    
+
+edit cookbook/core/flyte_basics/hello_world.py for local non container run
+
+(flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ python cookbook/core/flyte_basics/hello_world.py
+{"asctime": "2021-07-01 13:46:31,011", "name": "flytekit", "levelname": "DEBUG", "message": "Task returns unnamed native tuple <class 'str'>"}
+{"asctime": "2021-07-01 13:46:31,011", "name": "flytekit", "levelname": "DEBUG", "message": "Task returns unnamed native tuple <class 'str'>"}
+{"asctime": "2021-07-01 13:46:31,014", "name": "flytekit", "levelname": "INFO", "message": "Invoking __main__.say_hello with inputs: {'name': 'rowan'}"}
+INFO:flytekit:Invoking __main__.say_hello with inputs: {'name': 'rowan'}
+{"asctime": "2021-07-01 13:46:31,015", "name": "flytekit", "levelname": "INFO", "message": "Task executed successfully in user level, outputs: hello rowan"}
+INFO:flytekit:Task executed successfully in user level, outputs: hello rowan
+Running my_wf() hello rowan
+
+
+(flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ REGISTRY=cr.flyte.org/flyteorg make fast_register
+Fast registering example workflows in cookbook/core
+...
+ Writing to file: 067_core.flyte_basics.hello_world.say_hello_1.pb
+ Writing to file: 068_core.flyte_basics.hello_world.my_wf_2.pb
+ Writing to file: 069_core.flyte_basics.hello_world.my_wf_3.pb
+...
+Successfully serialized 101 flyte objects
+DEBUG:root:		[2] Popping context - execute, branch[False], StackOrigin(serialize_all, 163, /opt/venv/lib/python3.8/site-packages/flytekit/clis/sdk_in_container/serialize.py)
+Config file not found at default location, relying on environment variables instead.
+                        To setup your config file run 'flyte-cli setup-config'
+Welcome to Flyte CLI! Version: 0.19.1
+Parsing files... 
+...
+/tmp/output/067_core.flyte_basics.hello_world.say_hello_1.pb
+/tmp/output/068_core.flyte_basics.hello_world.my_wf_2.pb
+/tmp/output/069_core.flyte_basics.hello_world.my_wf_3.pb
+...
+Uploaded compressed code archive /tmp/output/fast7570eb17749dec8096d795f98f862c4f.tar.gz to s3://my-s3-bucket/fast/fast7570eb17749dec8096d795f98f862c4f.tar.gz
+
+
+Registering resource_type: TASK
+project: "flytesnacks"
+domain: "development"
+name: "core.flyte_basics.hello_world.say_hello"
+version: "fast7570eb17749dec8096d795f98f862c4f"
+
+Registering resource_type: WORKFLOW
+project: "flytesnacks"
+domain: "development"
+name: "core.flyte_basics.hello_world.my_wf"
+version: "fast7570eb17749dec8096d795f98f862c4f"
+
+Registering resource_type: LAUNCH_PLAN
+project: "flytesnacks"
+domain: "development"
+name: "core.flyte_basics.hello_world.my_wf"
+version: "fast7570eb17749dec8096d795f98f862c4f"
+
+
+Finished scanning 101 files
+
+
+
+What has been installed?
+
+
+
+Starting Docker daemon...
+
+Done.
+
+Starting k3s cluster...
+
+Done.
+
+Deploying Flyte...
+
+namespace/flyte created
+
+namespace/kubernetes-dashboard created
+
+namespace/projectcontour created
+
+customresourcedefinition.apiextensions.k8s.io/extensionservices.projectcontour.io created
+
+customresourcedefinition.apiextensions.k8s.io/httpproxies.projectcontour.io created
+
+customresourcedefinition.apiextensions.k8s.io/tlscertificatedelegations.projectcontour.io created
+
+customresourcedefinition.apiextensions.k8s.io/flyteworkflows.flyte.lyft.com created
+
+serviceaccount/datacatalog created
+
+serviceaccount/flyte-pod-webhook created
+
+serviceaccount/flyteadmin created
+
+serviceaccount/flytepropeller created
+
+serviceaccount/kubernetes-dashboard created
+
+serviceaccount/contour created
+
+serviceaccount/contour-certgen created
+
+serviceaccount/envoy created
+
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+
+role.rbac.authorization.k8s.io/contour-certgen created
+
+clusterrole.rbac.authorization.k8s.io/flyte-pod-webhook created
+
+clusterrole.rbac.authorization.k8s.io/flyteadmin created
+
+clusterrole.rbac.authorization.k8s.io/contour created
+
+clusterrole.rbac.authorization.k8s.io/flytepropeller created
+
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+
+rolebinding.rbac.authorization.k8s.io/contour created
+
+clusterrolebinding.rbac.authorization.k8s.io/flyte-pod-webhook created
+
+clusterrolebinding.rbac.authorization.k8s.io/contour created
+
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard-admin created
+
+clusterrolebinding.rbac.authorization.k8s.io/flyteadmin-binding created
+
+clusterrolebinding.rbac.authorization.k8s.io/flytepropeller created
+
+configmap/clusterresource-template-dtg8ff28mt created
+
+configmap/datacatalog-config-64k8dg9gck created
+
+configmap/flyte-admin-config-7gmg5ffhdd created
+
+configmap/flyte-console-config created
+
+configmap/flyte-propeller-config-d9bhkt4m5d created
+
+configmap/kubernetes-dashboard-settings created
+
+configmap/contour created
+
+
+Warning: apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated in v1.16+, unavailable in v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition
+
+Warning: rbac.authorization.k8s.io/v1beta1 ClusterRoleBinding is deprecated in v1.17+, unavailable in v1.22+; use rbac.authorization.k8s.io/v1 ClusterRoleBinding
+
+Warning: batch/v1beta1 CronJob is deprecated in v1.21+, unavailable in v1.25+; use batch/v1 CronJob
+
+
+secret/db-pass-9dgchhk2bm created
+
+secret/flyte-admin-auth created
+
+secret/flyte-propeller-auth created
+
+secret/user-info created
+
+secret/kubernetes-dashboard-csrf created
+
+secret/kubernetes-dashboard-key-holder created
+
+service/datacatalog created
+
+service/flyte-pod-webhook created
+
+service/flyteadmin created
+
+service/flyteconsole created
+
+service/minio created
+
+service/minio-direct created
+
+service/postgres created
+
+service/postgres-direct created
+
+service/dashboard-metrics-scraper created
+
+service/kubernetes-dashboard created
+
+service/contour created
+
+service/envoy created
+
+deployment.apps/datacatalog created
+
+deployment.apps/flyte-pod-webhook created
+
+deployment.apps/flyteadmin created
+
+deployment.apps/flyteconsole created
+
+deployment.apps/flytepropeller created
+
+deployment.apps/minio created
+
+deployment.apps/postgres created
+
+deployment.apps/dashboard-metrics-scraper created
+
+deployment.apps/kubernetes-dashboard created
+
+deployment.apps/contour created
+
+cronjob.batch/syncresources created
+
+daemonset.apps/envoy created
+
+job.batch/flyte-pod-webhook-secret created
+
+job.batch/contour-certgen-v1.13.1 created
+
+ingress.networking.k8s.io/flytesystem created
+
+ingress.networking.k8s.io/minio created
+
+Waiting for Flyte to become ready...
+
+deployment.apps/datacatalog condition met
+
+deployment.apps/flyteadmin condition met
+
+deployment.apps/flyteconsole condition met
+
+deployment.apps/flytepropeller condition met
+
+Flyte is ready! Flyte UI is available at http://localhost:30081/console.
+
+
+Search...
+Stick to bottom
+
+
+Rowans-MacBook-Pro:flytesnacks rowan$ docker ps
+CONTAINER ID   IMAGE                                      COMMAND                  CREATED       STATUS       PORTS                                                                                                           NAMES
+d2d80c1ed4e7   cr.flyte.org/flyteorg/flyte-sandbox:dind   "tini flyte-entrypoi…"   2 hours ago   Up 2 hours   127.0.0.1:30081-30082->30081-30082/tcp, 127.0.0.1:30084->30084/tcp, 2375-2376/tcp, 127.0.0.1:30086->30086/tcp   flyte-sandbox
+Rowans-MacBook-Pro:flytesnacks rowan$ docker exec -it d2d80c1ed4e7 bash
+bash-5.1# kubectl get all
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   113m
+bash-5.1# kubectl get namespaces
+NAME                        STATUS   AGE
+default                     Active   113m
+kube-system                 Active   113m
+kube-public                 Active   113m
+kube-node-lease             Active   113m
+flyte                       Active   113m
+kubernetes-dashboard        Active   113m
+projectcontour              Active   113m
+flyteexamples-development   Active   111m
+flyteexamples-staging       Active   111m
+flyteexamples-production    Active   111m
+flytesnacks-development     Active   111m
+flytesnacks-staging         Active   111m
+flytesnacks-production      Active   111m
+
+bash-5.1# kubectl get all -n flyte
+NAME                                     READY   STATUS      RESTARTS   AGE
+pod/flyte-pod-webhook-6b7bdd655b-p8bw4   1/1     Running     0          23h
+pod/minio-8564dc858c-j956p               1/1     Running     0          23h
+pod/flytepropeller-54dc5d7b8f-45jjj      1/1     Running     0          23h
+pod/postgres-6c64cd5c48-5xfjn            1/1     Running     0          23h
+pod/flyteconsole-66c5575f79-mwxpx        1/1     Running     0          23h
+pod/datacatalog-7679db76b-s8pdl          1/1     Running     0          23h
+pod/flyteadmin-7dff4b4d77-c64tq          2/2     Running     0          23h
+pod/syncresources-27086991-jng7g         0/1     Completed   0          2m51s
+pod/syncresources-27086992-4wrmf         0/1     Completed   0          111s
+pod/syncresources-27086993-67csf         0/1     Completed   0          51s
+
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                AGE
+service/datacatalog         ClusterIP   10.43.128.174   <none>        88/TCP,89/TCP          23h
+service/flyte-pod-webhook   ClusterIP   10.43.228.103   <none>        443/TCP                23h
+service/flyteadmin          ClusterIP   10.43.72.254    <none>        87/TCP,80/TCP,81/TCP   23h
+service/flyteconsole        ClusterIP   10.43.42.130    <none>        80/TCP                 23h
+service/minio               ClusterIP   10.43.78.128    <none>        9000/TCP               23h
+service/minio-direct        NodePort    10.43.121.27    <none>        9000:30084/TCP         23h
+service/postgres            ClusterIP   10.43.159.192   <none>        5432/TCP               23h
+service/postgres-direct     NodePort    10.43.161.32    <none>        5432:30083/TCP         23h
+
+NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/flyte-pod-webhook   1/1     1            1           23h
+deployment.apps/minio               1/1     1            1           23h
+deployment.apps/flytepropeller      1/1     1            1           23h
+deployment.apps/postgres            1/1     1            1           23h
+deployment.apps/flyteconsole        1/1     1            1           23h
+deployment.apps/datacatalog         1/1     1            1           23h
+deployment.apps/flyteadmin          1/1     1            1           23h
+
+NAME                                           DESIRED   CURRENT   READY   AGE
+replicaset.apps/flyte-pod-webhook-6b7bdd655b   1         1         1       23h
+replicaset.apps/minio-8564dc858c               1         1         1       23h
+replicaset.apps/flytepropeller-54dc5d7b8f      1         1         1       23h
+replicaset.apps/postgres-6c64cd5c48            1         1         1       23h
+replicaset.apps/flyteconsole-66c5575f79        1         1         1       23h
+replicaset.apps/datacatalog-7679db76b          1         1         1       23h
+replicaset.apps/flyteadmin-7dff4b4d77          1         1         1       23h
+
+NAME                          SCHEDULE      SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/syncresources   */1 * * * *   False     0        51s             23h
+
+NAME                               COMPLETIONS   DURATION   AGE
+job.batch/syncresources-27086991   1/1           7s         2m51s
+job.batch/syncresources-27086992   1/1           7s         111s
+job.batch/syncresources-27086993   1/1           7s         51s
+
+
+
+(in docker UI)
+flyte-sandbox
+cr.flyte.org/flyteorg/flyte-sandbox:dind
+RUNNING
+
+Environment
+SANDBOX
+1
+
+KUBERNETES_API_PORT
+30086
+
+FLYTE_HOST
+localhost:30081
+
+FLYTE_AWS_ENDPOINT
+http://localhost:30084
+
+PATH
+/flyteorg/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+DOCKER_VERSION
+20.10.7
+
+DOCKER_TLS_CERTDIR
+/certs
+
+DIND_COMMIT
+42b1175eda071c0e9121e1d64345928384a93df1
+
+Mounts
+/USR/SRC
+/Users/rowan/dev/flyte/flytesnacks
+
+/VAR/LIB/KUBELET
+/var/lib/docker/volumes/84a4068f0d1d27ac3524c816f940705180b6cbc907fb4ffcb1597a1e1c4dab9f/_data
+
+/VAR/LIB/RANCHER/K3S
+/var/lib/docker/volumes/9ad25bb500fb932dfce446c713bbadbc5d801c24769e7d55bd6837fd601802f0/_data
+
+/VAR/LOG
+/var/lib/docker/volumes/0f1ce88009961c1a0f5b518d69268e2d331fa3c39b5155879d892241ed35815d/_data
+
+/VAR/LIB/CNI
+/var/lib/docker/volumes/082ba250abc3c541ca2d92adc484d56c4aa2161da47fc0d99de688dd7f39f9ff/_data
+
+/VAR/LIB/DOCKER
+/var/lib/docker/volumes/cff9e7bcbbdd358084f1a88e0ef99c2b005697909f0efcdde15575b4f19d2c7b/_data
+
+/ETC/RANCHER
+/host_mnt/Users/rowan/.flyte
+
+Ports
+2375/tcp
+Not bound
+2376/tcp
+Not bound
+30081/tcp
+127.0.0.1:30081
+
+30082/tcp
+127.0.0.1:30082
+
+30084/tcp
+127.0.0.1:30084
+
+30086/tcp
+127.0.0.1:30086
