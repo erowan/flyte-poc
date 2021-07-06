@@ -2,7 +2,7 @@ Deploy Flyte Sandbox k8s environment locally
 --------------------------------------------
 
 This deployment is closer to the real thing as the k3s sandbox runs everything in one container
-so you have docker exec onto the container to run kubectl and inspect the runtime.
+so you have to docker exec onto the container to run kubectl and inspect the runtime.
 
 
 I am using mac OSX but Docker Desktop with kubernetes is also available on Windows.
