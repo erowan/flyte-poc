@@ -913,3 +913,50 @@ Events:
   Normal  Pulled     15m   kubelet            Container image "house_price_prediction:dev" already present on machine
   Normal  Created    15m   kubelet            Created container bahyicye9e-n0-0
   Normal  Started    15m   kubelet            Started container bahyicye9e-n0-0
+
+
+The custom workflow resources
+
+Rowans-MacBook-Pro:flyte-poc rowan$ kubectl get flyteworkflows -n myflyteproject-development
+NAME         AGE
+bahyicye9e   4h59m
+h7fff0k23f   5h11m
+
+
+Rowans-MacBook-Pro:flyte-poc rowan$ kubectl get flyteworkflow bahyicye9e -n myflyteproject-development
+NAME         AGE
+bahyicye9e   5h
+Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe flyteworkflow bahyicye9e -n myflyteproject-development
+Name:         bahyicye9e
+Namespace:    myflyteproject-development
+Labels:       execution-id=bahyicye9e
+              hour-of-day=12
+              termination-status=terminated
+              workflow-name=house-price-prediction-house-price-predictor-house-price-predic
+Annotations:  <none>
+Accepted At:  2021-07-06T12:11:45Z
+API Version:  flyte.lyft.com/v1alpha1
+Execution Config:
+  Max Parallelism:    0
+  Task Plugin Impls:  <nil>
+Execution Id:
+  Domain:   development
+  Name:     bahyicye9e
+  Project:  myflyteproject
+Inputs:
+  Literals:
+    number_of_houses:
+      Scalar:
+        Primitive:
+          Integer:  1000
+    Seed:
+      Scalar:
+        Primitive:
+          Integer:  7
+Kind:               FlyteWorkflow
+Metadata:
+  Creation Timestamp:  2021-07-06T12:11:46Z
+  Generation:          25
+  Managed Fields:
+    API Version:  flyte.lyft.com/v1alpha1
+    ....
