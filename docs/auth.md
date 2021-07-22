@@ -1,13 +1,34 @@
-Authorization
--------------
+# Auth
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl get clusterrolebinding | grep flyte
+
+
+## Authentication
+
+
+IDAnywhere needs to be plugged in. Investigate.
+
+
+## Authorization
+
+Once a user is authenticated, authorization of the control plane (Admin interface) needs to be handled.
+
+Flyte has nothing in place atm just an [RFC](https://docs.google.com/document/d/1-dacHa0iaZl-Nq-nypfjbIqGq3m-Z2rp3T6AmLiburA/edit?usp=sharing)
+
+Looks like the are going to go with [Open Policy Agent (OPA)](https://www.openpolicyagent.org/).
+
+
+
+
+## GKP Roles & Service Accounts
+
+```
+$ kubectl get clusterrolebinding | grep flyte
 flyte-pod-webhook                                      ClusterRole/flyte-pod-webhook                                                      4d22h
 flyteadmin-binding                                     ClusterRole/flyteadmin                                                             4d22h
 flytepropeller                                         ClusterRole/flytepropeller                                                         4d22h
 
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe clusterrolebinding flytepropeller
+$ kubectl describe clusterrolebinding flytepropeller
 Name:         flytepropeller
 Labels:       <none>
 Annotations:  <none>
@@ -19,7 +40,7 @@ Subjects:
   ----            ----            ---------
   ServiceAccount  flytepropeller  flyte
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe serviceaccount flytepropeller
+$ kubectl describe serviceaccount flytepropeller
 Name:                flytepropeller
 Namespace:           flyte
 Labels:              <none>
@@ -28,9 +49,8 @@ Image pull secrets:  <none>
 Mountable secrets:   flytepropeller-token-8hqnq
 Tokens:              flytepropeller-token-8hqnq
 Events:              <none>
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe role flytepropeller
-Error from server (NotFound): roles.rbac.authorization.k8s.io "flytepropeller" not found
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe clusterrole flytepropeller
+
+$ kubectl describe clusterrole flytepropeller
 Name:         flytepropeller
 Labels:       <none>
 Annotations:  <none>
@@ -46,7 +66,7 @@ PolicyRule:
 
 
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe clusterrolebinding flyteadmin-binding
+$ kubectl describe clusterrolebinding flyteadmin-binding
 Name:         flyteadmin-binding
 Labels:       <none>
 Annotations:  <none>
@@ -58,7 +78,7 @@ Subjects:
   ----            ----        ---------
   ServiceAccount  flyteadmin  flyte
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe clusterrole flyteadmin
+$ kubectl describe clusterrole flyteadmin
 Name:         flyteadmin
 Labels:       <none>
 Annotations:  <none>
@@ -101,7 +121,7 @@ PolicyRule:
 
 
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe clusterrolebinding flyte-pod-webhook
+$ kubectl describe clusterrolebinding flyte-pod-webhook
 Name:         flyte-pod-webhook
 Labels:       <none>
 Annotations:  <none>
@@ -123,4 +143,4 @@ PolicyRule:
   mutatingwebhookconfigurations.*  []                 []              [get create update patch]
   pods.*                           []                 []              [get create update patch]
   secrets.*                        []                 []              [get create update patch]
- 
+ ```

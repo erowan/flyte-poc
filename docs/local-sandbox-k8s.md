@@ -1,5 +1,5 @@
-Deploy Flyte Sandbox k8s environment locally
---------------------------------------------
+# Deploy Flyte Sandbox to a k8s local env
+
 
 This deployment is closer to the real thing as the k3s sandbox runs everything in one container
 so you have to docker exec onto the container to run kubectl and inspect the runtime.
@@ -7,18 +7,20 @@ so you have to docker exec onto the container to run kubectl and inspect the run
 
 I am using mac OSX but Docker Desktop with kubernetes is also available on Windows.
 
-https://www.docker.com/products/docker-desktop
+[docker-desktop](https://www.docker.com/products/docker-desktop)
 
 
 Enable kubernete in Docker UI settings
 
 Note this will delete all resources
 
-ref: https://docs.docker.com/desktop/kubernetes/
+[reference](https://docs.docker.com/desktop/kubernetes/)
 
 
+```
+$ brew install kubectl
 
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl config set-context docker-desktop
+$ kubectl config set-context docker-desktop
 Context "docker-desktop" modified.
 Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get all
 NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
@@ -28,18 +30,29 @@ service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   119s
 Rowans-MacBook-Pro:cookbook rowan$ kubectl config get-contexts
 CURRENT   NAME             CLUSTER          AUTHINFO         NAMESPACE
 *         docker-desktop   docker-desktop   docker-desktop   flyte
+```
 
 
+## Deploy Flyte sandbox
 
-Deploy Flyte sandbox
---------------------
+I was using the ['Docker-Mac + K8s setup'](https://docs.flyte.org/en/latest/deployment/sandbox.html)
 
-I was using the 'Docker-Mac + K8s setup' in https://docs.flyte.org/en/latest/deployment/sandbox.html
-but the docs where not complete so I filled in the gaps ...
-
+but the docs where not complete so I had to fill in the gaps ...
 
 
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl create -f https://raw.githubusercontent.com/flyteorg/flyte/master/deployment/sandbox/flyte_generated.yaml
+if upgrading delete previous install
+
+```
+$ kubectl delete namespaces flyte projectcontour kubernetes-dashboard flyteexamples-development flyteexamples-production flyteexamples-staging
+$ kubectl delete customresourcedefinitions extensionservices.projectcontour.io flyteworkflows.flyte.lyft.com httpproxies.projectcontour.io tlscertificatedelegations.projectcontour.io
+$ kubectl delete clusterroles flyte-pod-webhook flyteadmin contour flytepropeller kubernetes-dashboard
+$ kubectl delete clusterrolebindings flyte-pod-webhook flyteadmin-binding contour flytepropeller kubernetes-dashboard kubernetes-dashboard-admin
+```
+
+Note flyte_generated.yaml is a snapshot taken from [flytes github](https://raw.githubusercontent.com/flyteorg/flyte/master/deployment/sandbox/flyte_generated.yaml)
+
+```
+Rowans-MacBook-Pro:flytesnacks rowan$ kubectl create -f flyte_generated.yaml 
 namespace/flyte created
 namespace/kubernetes-dashboard created
 namespace/projectcontour created
@@ -74,7 +87,7 @@ clusterrolebinding.rbac.authorization.k8s.io/flyteadmin-binding created
 clusterrolebinding.rbac.authorization.k8s.io/flytepropeller created
 configmap/clusterresource-template-dtg8ff28mt created
 configmap/datacatalog-config-64k8dg9gck created
-configmap/flyte-admin-config-7gmg5ffhdd created
+configmap/flyte-admin-config-g49kfbhmdf created
 configmap/flyte-console-config created
 configmap/flyte-propeller-config-d9bhkt4m5d created
 configmap/kubernetes-dashboard-settings created
@@ -114,6 +127,7 @@ job.batch/flyte-pod-webhook-secret created
 job.batch/contour-certgen-v1.13.1 created
 ingress.networking.k8s.io/flytesystem created
 ingress.networking.k8s.io/minio created
+
 
 Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get all -n flyte
 NAME                                     READY   STATUS              RESTARTS   AGE
@@ -161,20 +175,54 @@ cronjob.batch/syncresources   */1 * * * *   False     0        57s             2
 NAME                               COMPLETIONS   DURATION   AGE
 job.batch/syncresources-27087056   1/1           77s        117s
 job.batch/syncresources-27087057   1/1           20s        57s
+```
 
 
 What UIs have been deployed?
 ----------------------------
 
 A Flyte UI at http://localhost:30081/
+
 A K8 dashboard is served at http://localhost:30082/
+
 Minio at http://localhost:30084/minio/
+
 MINIO_ACCESS_KEY:  minio
 MINIO_SECRET_KEY:  miniostorage
-postgres?
 
 
-(flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ flytectl get project
+
+### Setup Env
+
+```
+$ python3 -m venv flyte-dev
+$ source flyte-dev/bin/activate
+(flyte-dev) $ python
+Python 3.7.1 (default, Dec 14 2018, 13:28:58) 
+[Clang 4.0.1 (tags/RELEASE_401/final)] :: Anaconda, Inc. on darwin
+
+(flyte-dev) $ pip install --pre flytekit
+Collecting flytekit
+...
+Successfully installed attrs-21.2.0 certifi-2021.5.30 chardet-4.0.0 click-7.1.2 croniter-1.0.15 dataclasses-json-0.5.4 decorator-5.0.9 deprecated-1.2.12 dirhash-0.2.1 docker-image-py-0.1.10 flyteidl-0.19.7 flytekit-0.20.0b2 grpcio-1.38.1 idna-2.10 importlib-metadata-4.6.0 keyring-23.0.1 marshmallow-3.12.1 marshmallow-enum-1.5.1 marshmallow-jsonschema-0.12.0 mypy-extensions-0.4.3 natsort-7.1.1 numpy-1.21.0 pandas-1.3.0rc1 pathspec-0.8.1 protobuf-3.17.3 py-1.10.0 pyarrow-3.0.0 python-dateutil-2.8.1 python-json-logger-2.0.1 pytimeparse-1.1.8 pytz-2018.4 regex-2021.4.4 requests-2.25.1 responses-0.13.3 retry-0.9.2 scantree-0.0.1 six-1.16.0 sortedcontainers-2.4.0 statsd-3.3.0 stringcase-1.2.0 typing-extensions-3.10.0.0 typing-inspect-0.7.1 urllib3-1.25.11 wheel-0.36.2 wrapt-1.12.1 zipp-3.4.1
+```
+
+Note: You also need to install flytectl with brew
+
+```
+$ brew install flyteorg/homebrew-tap/flytectl
+
+to update
+
+$ brew update && brew upgrade flytectl
+==> Upgrading 1 outdated package:
+flyteorg/tap/flytectl 0.1.29 -> 0.2.16
+==> Upgrading flyteorg/tap/flytectl
+  0.1.29 -> 0.2.16 
+
+
+
+(flyte-dev) $ flytectl get project
 {"json":{},"level":"warning","msg":"Starting an unauthenticated client because: failed to fetch auth metadata. Error: rpc error: code = Unimplemented desc = unknown service flyteidl.service.AuthMetadataService","ts":"2021-07-03T11:19:58+01:00"}
 {"json":{},"level":"info","msg":"Initialized Admin client","ts":"2021-07-03T11:19:58+01:00"}
  --------------- --------------- --------------------------- 
@@ -185,13 +233,17 @@ postgres?
 | flytesnacks   | flytesnacks   | flytesnacks description   |
  --------------- --------------- --------------------------- 
 2 rows
+```
 
 
+### Build TASK/WORKFLOW IMAGE
 
-Build TASK/WORKFLOW IMAGE
--------------------------
+```
+$ git clone git@github.com:flyteorg/flytesnacks.git flytesnacks
+Cloning into 'flytesnacks'...
 
-cd cookbook/case_studies/ml_training/house_price_prediction
+cd flytesnacks/cookbook/case_studies/ml_training/house_price_prediction
+
 
 Change the Dockerfile removing the house_price_prediction dir from these lines
 
@@ -201,47 +253,14 @@ COPY sandbox.config /root
 # Copy the actual code
 COPY ./ /root/house_price_prediction/
 
-(flyte-dev) Rowans-MacBook-Pro:house_price_prediction rowan$ docker build . --tag house_price_prediction:dev
-[+] Building 310.8s (20/20) FINISHED                                                                                                                                                                                                                                    
- => [internal] load build definition from Dockerfile                                                                                                                                                                                                               0.0s
- => => transferring dockerfile: 1.53kB                                                                                                                                                                                                                             0.0s
- => [internal] load .dockerignore                                                                                                                                                                                                                                  0.0s
- => => transferring context: 2B                                                                                                                                                                                                                                    0.0s
- => [internal] load metadata for docker.io/library/ubuntu:focal                                                                                                                                                                                                    0.5s
- => [ 1/15] FROM docker.io/library/ubuntu:focal@sha256:aba80b77e27148d99c034a987e7da3a287ed455390352663418c0f2ed40417fe                                                                                                                                            5.3s
- => => resolve docker.io/library/ubuntu:focal@sha256:aba80b77e27148d99c034a987e7da3a287ed455390352663418c0f2ed40417fe                                                                                                                                              0.0s
- => => sha256:aba80b77e27148d99c034a987e7da3a287ed455390352663418c0f2ed40417fe 1.20kB / 1.20kB                                                                                                                                                                     0.0s
- => => sha256:376209074d481dca0a9cf4282710cd30a9e7ff402dea8261acdaaf57a18971dd 529B / 529B                                                                                                                                                                         0.0s
- => => sha256:9873176a8ff5ac192ce4d7df8a403787558b9f3981a4c4d74afb3edceeda451c 1.46kB / 1.46kB                                                                                                                                                                     0.0s
- => => sha256:c549ccf8d472c3bce9ce02e49c62b8f6cbc736ea2b8ba812a1ae9390c69d0b71 28.55MB / 28.55MB                                                                                                                                                                   3.4s
- => => extracting sha256:c549ccf8d472c3bce9ce02e49c62b8f6cbc736ea2b8ba812a1ae9390c69d0b71                                                                                                                                                                          1.6s
- => [internal] load build context                                                                                                                                                                                                                                  0.0s
- => => transferring context: 18.86kB                                                                                                                                                                                                                               0.0s
- => [ 2/15] WORKDIR /root                                                                                                                                                                                                                                          0.1s
- => [ 3/15] RUN :     && apt-get update     && apt install -y software-properties-common     && add-apt-repository ppa:deadsnakes/ppa                                                                                                                             35.9s
- => [ 4/15] RUN :     && apt-get update     && apt-get install -y python3.8 python3-pip python3-venv make build-essential libssl-dev curl vim                                                                                                                     28.4s
- => [ 5/15] RUN apt-get update && apt-get install -y libsm6 libxext6 libxrender-dev ffmpeg                                                                                                                                                                        37.4s 
- => [ 6/15] RUN pip3 install awscli                                                                                                                                                                                                                               15.5s 
- => [ 7/15] RUN python3.8 -m venv /opt/venv                                                                                                                                                                                                                        3.3s 
- => [ 8/15] RUN /opt/venv/bin/pip install wheel                                                                                                                                                                                                                    2.2s 
- => [ 9/15] COPY requirements.txt /root                                                                                                                                                                                                                            0.1s 
- => [10/15] RUN /opt/venv/bin/pip install -r /root/requirements.txt                                                                                                                                                                                              138.7s 
- => [11/15] COPY in_container.mk /root/Makefile                                                                                                                                                                                                                    0.1s 
- => [12/15] COPY sandbox.config /root                                                                                                                                                                                                                              0.1s 
- => [13/15] COPY ./ /root/house_price_prediction/                                                                                                                                                                                                                  0.1s 
- => [14/15] RUN cp /opt/venv/bin/flytekit_venv /usr/local/bin/                                                                                                                                                                                                     1.3s 
- => [15/15] RUN chmod a+x /usr/local/bin/flytekit_venv                                                                                                                                                                                                             0.7s 
- => exporting to image                                                                                                                                                                                                                                            41.0s 
- => => exporting layers                                                                                                                                                                                                                                           40.9s
- => => writing image sha256:35bc7bf13ee0913195e7bf1e26a0783fe8115d8e719fda169bc899394c83dd62                                                                                                                                                                       0.0s
- => => naming to docker.io/library/myapp:0b37a267ced6639a5402932ffca883ad6ddeefbe   
+(flyte-dev) $ docker build . --tag house_price_prediction:dev
+```
 
 
+### Register a new project
 
-Register a new project
-----------------------
-
- (flyte-dev) Rowans-MacBook-Pro:flytesnacks rowan$ flyte-cli register-project -i -h localhost:30081 -p myflyteproject --name "My Flyte Project" --description "My very first project onboarding onto Flyte"
+```
+ (flyte-dev) $ flyte-cli register-project -i -h localhost:30081 -p myflyteproject --name "My Flyte Project" --description "My very first project onboarding onto Flyte"
 Config file not found at default location, relying on environment variables instead.
                         To setup your config file run 'flyte-cli setup-config'
 Welcome to Flyte CLI! Version: 0.20.0b2
@@ -250,28 +269,31 @@ Registered project [id: myflyteproject, name: My Flyte Project, description: My 
 OR
 
 curl -X POST localhost:30081/api/v1/projects -d '{"project": {"id": "myflyteproject", "name": "myflyteproject"} }'
+```
 
+Note Running serialize/register in the built container instead of locally as I had issues installing xgboost on OSX
 
-Running serialize/register in the built container instead of locally as I had issues installing xgboost on OSX
-Note overriding the entrypoint in the image which is ENTRYPOINT ["/usr/local/bin/flytekit_venv"]
+Overriding the entrypoint in the image which is ENTRYPOINT ["/usr/local/bin/flytekit_venv"]
 
-(flyte-dev) Rowans-MacBook-Pro:house_price_prediction rowan$ docker run -it --entrypoint=/bin/bash house_price_prediction:dev -i
+```
+(flyte-dev) $ docker run -it --entrypoint=/bin/bash house_price_prediction:dev -i
 root@e9bd8bc9c9f5:~# pwd
 /root
 
 root@e9bd8bc9c9f5:~# ls
 Makefile  house_price_prediction  requirements.txt  sandbox.config
+```
 
-Activate virtual env
---------------------
+#### Activate virtual env
 
+```
 root@e9bd8bc9c9f5:~# source /opt/venv/bin/activate
 (venv) root@e9bd8bc9c9f5:~# 
+```
 
+#### Running the workflow in the container locally without flyte k8s pod execution
 
-Run the workflow in the container locally without flyte k8s pod execution
--------------------------------------------------------------------------
-
+```
 (venv) root@e9bd8bc9c9f5:~# python house_price_prediction/house_price_predictor.py 
 2021-07-06 12:21:22,886-flytekit-DEBUG$ Task returns named tuple <class '__main__.GenerateSplitDataOutputs'>
 2021-07-06 12:21:22,887-flytekit-DEBUG$ Task returns named tuple <class '__main__.Model'>
@@ -547,12 +569,12 @@ INFO:flytekit:Invoking __main__.predict with inputs: {'test':        PRICE  YEAR
 INFO:flytekit:Task executed successfully in user level, outputs: [428397.0, 486687.4375, 402570.0, 241104.65625, 400617.40625, 411560.9375, 334282.78125, 366538.5, 559682.75, 426885.375, 411110.53125, 413846.0, 522257.21875, 364194.0, 301331.625, 502869.90625, 522544.46875, 484730.125, 262344.46875, 565652.625, 152387.75, 481774.78125, 581078.0, 524254.34375, 313889.78125, 463703.4375, 213016.203125, 535191.375, 586328.8125, 528858.9375, 397277.03125, 482509.0, 418422.65625, 477509.15625, 313576.9375, 440548.53125, 305791.28125, 314925.34375, 333805.03125, 678046.5, 413732.5625, 467082.625, 467785.9375, 473361.6875, 274566.96875, 421138.21875, 217376.4375, 475949.09375, 111706.984375, 301830.25, 574423.375, 463440.6875, 373479.125, 495740.59375, 281860.625, 371542.625, 557873.3125, 580810.0, 414522.21875, 370215.90625, 341049.5625, 306748.84375, 228799.015625, 449677.8125, 616481.875, 437929.15625, 316782.65625, 380658.8125, 285673.09375, 634019.125, 377730.8125, 576798.5, 323117.09375, 372071.5, 352913.15625, 425237.21875, 675146.9375, 487457.6875, 305738.21875, 336066.8125, 333265.5, 509260.78125, 601568.0, 365937.90625, 447272.84375, 189271.4375, 367539.0, 374243.09375, 424794.28125, 584933.1875, 440066.75, 170445.234375, 224244.59375, 508162.21875, 552780.9375, 572432.5, 555501.25, 324170.28125, 260092.578125, 452722.40625]
 [428397.0, 486687.4375, 402570.0, 241104.65625, 400617.40625, 411560.9375, 334282.78125, 366538.5, 559682.75, 426885.375, 411110.53125, 413846.0, 522257.21875, 364194.0, 301331.625, 502869.90625, 522544.46875, 484730.125, 262344.46875, 565652.625, 152387.75, 481774.78125, 581078.0, 524254.34375, 313889.78125, 463703.4375, 213016.203125, 535191.375, 586328.8125, 528858.9375, 397277.03125, 482509.0, 418422.65625, 477509.15625, 313576.9375, 440548.53125, 305791.28125, 314925.34375, 333805.03125, 678046.5, 413732.5625, 467082.625, 467785.9375, 473361.6875, 274566.96875, 421138.21875, 217376.4375, 475949.09375, 111706.984375, 301830.25, 574423.375, 463440.6875, 373479.125, 495740.59375, 281860.625, 371542.625, 557873.3125, 580810.0, 414522.21875, 370215.90625, 341049.5625, 306748.84375, 228799.015625, 449677.8125, 616481.875, 437929.15625, 316782.65625, 380658.8125, 285673.09375, 634019.125, 377730.8125, 576798.5, 323117.09375, 372071.5, 352913.15625, 425237.21875, 675146.9375, 487457.6875, 305738.21875, 336066.8125, 333265.5, 509260.78125, 601568.0, 365937.90625, 447272.84375, 189271.4375, 367539.0, 374243.09375, 424794.28125, 584933.1875, 440066.75, 170445.234375, 224244.59375, 508162.21875, 552780.9375, 572432.5, 555501.25, 324170.28125, 260092.578125, 452722.40625]
 (venv) root@e9bd8bc9c9f5:~# 
+```
 
 
+###  Serialize tasks + workflows
 
-Serialize tasks + workflows
----------------------------
-
+```
 (venv) root@df2de999a1a6:~# mkdir _pb_output
 (venv) root@df2de999a1a6:~# pyflyte -c sandbox.config --pkgs house_price_prediction serialize --in-container-config-path /root/flyte.config --image house_price_prediction:dev workflows -f _pb_output
 Using configuration file at /root/sandbox.config
@@ -600,13 +622,15 @@ DEBUG:root:		[2] Popping context - execute, branch[False], StackOrigin(serialize
 2_house_price_prediction.house_price_predictor.predict_1.pb                        7_house_price_prediction.multiregion_house_price_predictor.multi_region_house_price_prediction_model_trainer_2.pb
 3_house_price_prediction.house_price_predictor.house_price_predictor_trainer_2.pb  8_house_price_prediction.multiregion_house_price_predictor.multi_region_house_price_prediction_model_trainer_3.pb
 4_house_price_prediction.house_price_predictor.house_price_predictor_trainer_3.pb
+```
 
+### Registration
 
-Registration
-------------
 
 Install flytectl
-venv) root@df2de999a1a6:~# curl -s https://raw.githubusercontent.com/lyft/flytectl/master/install.sh | bash
+
+```
+(venv) root@df2de999a1a6:~# curl -s https://raw.githubusercontent.com/lyft/flytectl/master/install.sh | bash
 flyteorg/flytectl info checking GitHub for latest tag
 flyteorg/flytectl info found version: 0.2.1 for v0.2.1/Linux/x86_64
 flyteorg/flytectl info installed ./bin/flytectl
@@ -617,85 +641,15 @@ flyteorg/flytectl info installed ./bin/flytectl
 
 (venv) root@df2de999a1a6:~# tar -cvf myproject.tar *.pb
 (venv) root@df2de999a1a6:~# cd ..
+```
 
-mkdir -p $HOME/.flyte
-cat << EOF > $HOME/.flyte/config.yaml
-admin:
-  # For GRPC endpoints you might want to use dns:///flyte.myexample.com
-  endpoint: dns:///localhost:30081
-  insecure: true
-  authType: Pkce # if using authentication or just drop this. If insecure set insecure: True
-storage:
-  connection:
-    access-key: minio
-    auth-type: accesskey
-    disable-ssl: true
-    endpoint: http://localhost:30084
-    region: my-region-here
-    secret-key: miniostorage
-  container: my-s3-bucket
-  type: minio
-EOF
 
-(venv) root@df2de999a1a6:~# ./bin/flytectl register files -p 'myflyteproject' -d development --archive ./_pb_output/myproject.tar  --version v
-{"json":{},"level":"warning","msg":"Starting an unauthenticated client because: failed to fetch auth metadata. Error: rpc error: code = Unavailable desc = connection error: desc = \"transport: Error while dialing dial tcp 127.0.0.1:30081: connect: connection refused\"","ts":"2021-07-06T08:38:49Z"}
-{"json":{},"level":"info","msg":"Initialized Admin client","ts":"2021-07-06T08:38:49Z"}
-{"json":{},"level":"info","msg":"Parsing file... Total(9)","ts":"2021-07-06T08:38:49Z"}
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| NAME (9)                                                                                                                                 | STATUS | ADDITIONAL INFO                                 |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/0_house_price_prediction.house_price_predictor.generate_and_split_data_1.pb                                       | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/1_house_price_prediction.house_price_predictor.fit_1.pb                                                           | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/2_house_price_prediction.house_price_predictor.predict_1.pb                                                       | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/3_house_price_prediction.house_price_predictor.house_price_predictor_trainer_2.pb                                 | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/4_house_price_prediction.house_price_predictor.house_price_predictor_trainer_3.pb                                 | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/5_house_price_prediction.multiregion_house_price_predictor.generate_and_split_data_multiloc_1.pb                  | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/6_house_price_prediction.multiregion_house_price_predictor.parallel_fit_predict_1.pb                              | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/7_house_price_prediction.multiregion_house_price_predictor.multi_region_house_price_prediction_model_trainer_2.pb | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-| /tmp/register696787778/8_house_price_prediction.multiregion_house_price_predictor.multi_region_house_price_prediction_model_trainer_3.pb | Failed | Error registering file due to rpc error: code = |
-|                                                                                                                                          |        | Unavailable desc = connection error: desc =     |
-|                                                                                                                                          |        | "transport: Error while dialing dial tcp        |
-|                                                                                                                                          |        | 127.0.0.1:30081: connect: connection refused"   |
- ------------------------------------------------------------------------------------------------------------------------------------------ -------- ------------------------------------------------- 
-9 rows
 
-The docker container is unable to connect to the flye admin service
-
+If the docker container is unable to connect to the flye admin service
 Outside the docker container find out what the network bridge gateway is
 
-Rowans-MacBook-Pro:flytesnacks rowan$ docker network inspect bridge
+```
+$ docker network inspect bridge
 [
     {
         "Name": "bridge",
@@ -752,7 +706,27 @@ Check you can connect to the admin server?
 * Connected to 172.17.0.1 (172.17.0.1) port 30081 (#0)
 
 
-(venv) root@df2de999a1a6:~# ./bin/flytectl register files -p myflyteproject -d development --archive ./_pb_output/myproject.tar  --version v1 
+mkdir -p $HOME/.flyte
+cat << EOF > $HOME/.flyte/config.yaml
+admin:
+  # For GRPC endpoints you might want to use dns:///flyte.myexample.com
+  endpoint: dns:///172.17.0.1:30081
+  insecure: true
+  authType: Pkce # if using authentication or just drop this. If insecure set insecure: True
+storage:
+  connection:
+    access-key: minio
+    auth-type: accesskey
+    disable-ssl: true
+    endpoint: http://172.17.0.1:30084
+    region: my-region-here
+    secret-key: miniostorage
+  container: my-s3-bucket
+  type: minio
+EOF
+
+(venv) root@df2de999a1a6:~# ./bin/flytectl register files -p 'myflyteproject' -d development --archive ./_pb_output/myproject.tar  --version v
+
 {"json":{},"level":"warning","msg":"Starting an unauthenticated client because: failed to fetch auth metadata. Error: rpc error: code = Unimplemented desc = unknown service flyteidl.service.AuthMetadataService","ts":"2021-07-06T08:58:57Z"}
 {"json":{},"level":"info","msg":"Initialized Admin client","ts":"2021-07-06T08:58:57Z"}
 {"json":{},"level":"info","msg":"Parsing file... Total(9)","ts":"2021-07-06T08:58:57Z"}
@@ -778,15 +752,16 @@ Check you can connect to the admin server?
 | /tmp/register528318444/8_house_price_prediction.multiregion_house_price_predictor.multi_region_house_price_prediction_model_trainer_3.pb | Success | Successfully registered file |
  ------------------------------------------------------------------------------------------------------------------------------------------ --------- ------------------------------ 
 9 rows
+```
 
-You should now see 2 workflows in the flight console http://localhost:30081/console/projects/myflyteproject/workflows
+You should now see 2 workflows in the [flight console](http://localhost:30081/console/projects/myflyteproject/workflows)
 
 Launch house_price_predictor_trainer
 
 What execution pods were created?
 
-
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get namespaces
+```
+$ kubectl get namespaces
 NAME                         STATUS   AGE
 default                      Active   4d1h
 flyte                        Active   4d1h
@@ -806,17 +781,18 @@ myflyteproject-staging       Active   23h
 projectcontour               Active   4d1h
 
 
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get all -n myflyteproject-development
+$ kubectl get all -n myflyteproject-development
 NAME                  READY   STATUS      RESTARTS   AGE
 pod/bahyicye9e-n0-0   0/1     Completed   0          14m
 pod/bahyicye9e-n1-0   0/1     Completed   0          13m
 pod/bahyicye9e-n2-0   0/1     Completed   0          12m
 pod/h7fff0k23f-n0-0   0/1     Completed   0          26m
-
+```
 
 What does the pod look like?
 
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl describe po bahyicye9e-n0-0  -n myflyteproject-development
+```
+$ kubectl describe po bahyicye9e-n0-0  -n myflyteproject-development
 Name:         bahyicye9e-n0-0
 Namespace:    myflyteproject-development
 Priority:     0
@@ -917,13 +893,13 @@ Events:
 
 The custom workflow resources
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl get flyteworkflows -n myflyteproject-development
+$ kubectl get flyteworkflows -n myflyteproject-development
 NAME         AGE
 bahyicye9e   4h59m
 h7fff0k23f   5h11m
 
 
-Rowans-MacBook-Pro:flyte-poc rowan$ kubectl get flyteworkflow bahyicye9e -n myflyteproject-development
+$ kubectl get flyteworkflow bahyicye9e -n myflyteproject-development
 NAME         AGE
 bahyicye9e   5h
 Rowans-MacBook-Pro:flyte-poc rowan$ kubectl describe flyteworkflow bahyicye9e -n myflyteproject-development
@@ -959,4 +935,5 @@ Metadata:
   Generation:          25
   Managed Fields:
     API Version:  flyte.lyft.com/v1alpha1
-    ....
+  ...
+```    

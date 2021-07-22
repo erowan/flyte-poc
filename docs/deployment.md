@@ -1,38 +1,33 @@
 
-Services
---------
+# Services
 
-The following services are required in Flyte. The values shown are GKP services that can be used
-to perform that service.
+The following services are required in Flyte. The values shown are GKP services that can be used to perform that service.
 
 
 
-Relational Database
--------------------
+## Relational Database
+
 
 The FlyteAdmin and DataCatalog components rely on PostgreSQL to store persistent records.
 
 GAIA CockRoachDB?
 
 
-Object store
-------------
+## Object store
 
 Core Flyte components such as Admin, Propeller, and DataCatalog, as well as user runtime containers rely on an Object Store to hold files.
 
 Mercury
 
 
-Pub/Sub 
---------
+## Pub/Sub 
 
 Flyte relies on cloud-provided pub/sub and schedulers to provide automated periodic execution of your launch plans.
 
 ???
 
 
-Authentication
---------------
+## Authentication
 
 The Flyte system consists of multiple components. Securing communication between each components is crucial to ensure the security of the overall system.
 
@@ -44,12 +39,12 @@ OAuth2: Used to secure communication between clients (i.e. flyte-cli, flytectl a
 
 ???
 
-Monitoring
-----------
+## Monitoring
 
 Flyte Backend is written in Golang and exposes stats using Prometheus. The Stats themselves are labeled with the Workflow, Task, Project & Domain wherever appropriate.
 
+Dash boards
+- [user](https://grafana.com/grafana/dashboards/13980)
+- [data plane](https://grafana.com/grafana/dashboards/13979)
+- [control plane](https://grafana.com/grafana/dashboards/13981)
 
-user dash -> https://grafana.com/grafana/dashboards/13980
-data plane dash -> https://grafana.com/grafana/dashboards/13979
-control plane dash -> https://grafana.com/grafana/dashboards/13981
