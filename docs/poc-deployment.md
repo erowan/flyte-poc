@@ -76,4 +76,6 @@ domain=d-dev|t-dev|p-dev
 
 ## Build tools
 
-Flyte has both kustomize & helm3 charts which are both deployment options for us. Find out which system is going to become the defacto at Flyte and base the decision on that to avoid our depoloyment code base gettting out of date with the opensource. Best to avoid merging changes from helm to kustomize or kustomize to helm.
+### Helm3
+
+Flyte has both kustomize & helm3 charts which are both deployment options for us. Helm is going to become the defacto at Flyte so it would be best to sync with tool to avoid our deployment code base getting out of date with the opensource. Best to avoid merging changes from open source helm to jpmc kustomize.
