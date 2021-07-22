@@ -12,4 +12,6 @@
 
 - [DB](./docs/db.md)
 
+- [API Tooling](./docs/api-tooling.md)
+
 - [The sandbox deployment yaml](./flyte_generated.yaml)

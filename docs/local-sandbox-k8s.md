@@ -22,12 +22,12 @@ $ brew install kubectl
 
 $ kubectl config set-context docker-desktop
 Context "docker-desktop" modified.
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get all
+$ kubectl get all
 NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   119s
 
 
-Rowans-MacBook-Pro:cookbook rowan$ kubectl config get-contexts
+$ kubectl config get-contexts
 CURRENT   NAME             CLUSTER          AUTHINFO         NAMESPACE
 *         docker-desktop   docker-desktop   docker-desktop   flyte
 ```
@@ -52,7 +52,7 @@ $ kubectl delete clusterrolebindings flyte-pod-webhook flyteadmin-binding contou
 Note flyte_generated.yaml is a snapshot taken from [flytes github](https://raw.githubusercontent.com/flyteorg/flyte/master/deployment/sandbox/flyte_generated.yaml)
 
 ```
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl create -f flyte_generated.yaml 
+$ kubectl create -f flyte_generated.yaml 
 namespace/flyte created
 namespace/kubernetes-dashboard created
 namespace/projectcontour created
@@ -129,7 +129,7 @@ ingress.networking.k8s.io/flytesystem created
 ingress.networking.k8s.io/minio created
 
 
-Rowans-MacBook-Pro:flytesnacks rowan$ kubectl get all -n flyte
+$ kubectl get all -n flyte
 NAME                                     READY   STATUS              RESTARTS   AGE
 pod/datacatalog-7679db76b-dzgnt          1/1     Running             0          2m16s
 pod/flyte-pod-webhook-6b7bdd655b-bfl7t   0/1     ContainerCreating   0          2m16s
@@ -178,8 +178,8 @@ job.batch/syncresources-27087057   1/1           20s        57s
 ```
 
 
-What UIs have been deployed?
-----------------------------
+## What UIs have been deployed?
+
 
 A Flyte UI at http://localhost:30081/
 
@@ -698,13 +698,6 @@ $ docker network inspect bridge
 
 Update $HOME/.flyte/config.yaml in the container with the value of IPAM.Config.Gateway which is 172.17.0.1 here
 
-Check you can connect to the admin server? 
-
-(venv) root@df2de999a1a6:~# curl -v telnet://172.17.0.1:30081
-*   Trying 172.17.0.1:30081...
-* TCP_NODELAY set
-* Connected to 172.17.0.1 (172.17.0.1) port 30081 (#0)
-
 
 mkdir -p $HOME/.flyte
 cat << EOF > $HOME/.flyte/config.yaml
@@ -724,6 +717,14 @@ storage:
   container: my-s3-bucket
   type: minio
 EOF
+
+Check you can connect to the admin server? 
+
+(venv) root@df2de999a1a6:~# curl -v telnet://172.17.0.1:30081
+*   Trying 172.17.0.1:30081...
+* TCP_NODELAY set
+* Connected to 172.17.0.1 (172.17.0.1) port 30081 (#0)
+
 
 (venv) root@df2de999a1a6:~# ./bin/flytectl register files -p 'myflyteproject' -d development --archive ./_pb_output/myproject.tar  --version v
 
