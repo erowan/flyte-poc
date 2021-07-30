@@ -276,7 +276,7 @@ Note Running serialize/register in the built container instead of locally as I h
 Overriding the entrypoint in the image which is ENTRYPOINT ["/usr/local/bin/flytekit_venv"]
 
 ```
-(flyte-dev) $ docker run -it --entrypoint=/bin/bash house_price_prediction:dev -i
+(flyte-dev) $ docker run -it --entrypoint=/bin/bash house_price_prediction:dev 
 root@e9bd8bc9c9f5:~# pwd
 /root
 
