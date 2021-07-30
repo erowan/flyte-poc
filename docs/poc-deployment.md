@@ -100,25 +100,8 @@ See the readme for deployment instructions
 ```
 $ curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
 
+
 $ k3d cluster create -p "30081:30081" -p "30084:30084" --no-lb --k3s-server-arg '--no-deploy=traefik' --k3s-server-arg '--no-deploy=servicelb' flyte
-WARN[0000] No node filter specified                     
-WARN[0000] No node filter specified                     
-INFO[0000] Prep: Network                                
-INFO[0003] Created network 'k3d-flyte' (3c61aafe2622e3bf005d18c1724a603451be96939b348ecbd11e00f40cae75a3) 
-INFO[0003] Created volume 'k3d-flyte-images'            
-INFO[0004] Creating node 'k3d-flyte-server-0'           
-INFO[0005] Starting cluster 'flyte'                     
-INFO[0005] Starting servers...                          
-INFO[0005] Starting Node 'k3d-flyte-server-0'           
-ERRO[0009] Failed to start node 'k3d-flyte-server-0'    
-ERRO[0009] Failed Cluster Start: Failed to start server k3d-flyte-server-0: Error response from daemon: driver failed programming external connectivity on endpoint k3d-flyte-server-0 (530fbdb32452ab5d66658a5796b274bf7fef7e1471991841f30d42c2edc781bc): Error starting userland proxy: listen tcp4 0.0.0.0:30084: bind: address already in use 
-ERRO[0009] Failed to create cluster >>> Rolling Back    
-INFO[0009] Deleting cluster 'flyte'                     
-INFO[0009] Deleted k3d-flyte-server-0                   
-INFO[0009] Deleting cluster network 'k3d-flyte'         
-INFO[0012] Deleting image volume 'k3d-flyte-images'     
-FATA[0012] Cluster creation FAILED, all changes have been rolled back! 
-Rowans-MacBook-Pro:flyte rowan$ k3d cluster create -p "30081:30081" -p "30084:30084" --no-lb --k3s-server-arg '--no-deploy=traefik' --k3s-server-arg '--no-deploy=servicelb' flyte
 WARN[0000] No node filter specified                     
 WARN[0000] No node filter specified                     
 INFO[0000] Prep: Network                                
