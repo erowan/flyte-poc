@@ -2,7 +2,7 @@
 
 The Flyte POC aims to get Flyte running on GKP with a limited setup.
 
-- Minio S3
+- Local Postgres
 - No authentication/authorisation
 - Mercury auth bootstrapped in the propeller pod and mercury keys passed via env vars to the project workflow pods. I think the S3 bucket has global scope within a single Flyte deployment currently. This shold be changed to be scoped at the project level to isolate data between different projects. Note the Mecury service does not currently support scoping buckets within a seal app id either yet.  
 - The kubernetes-dashboard? Can we run this? It's used to display the k8s task logs.
@@ -25,7 +25,6 @@ cr.flyte.org/flyteorg/flytepropeller
 tag: flyte-v0.15.0
 
 kubernetesui/dashboard                 v2.2.0  
-minio/minio   
 
 
 ### Python client packages
